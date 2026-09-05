@@ -1,0 +1,27 @@
+#!/sbin/sh
+SKIPUNZIP=1
+
+ui_print "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+ui_print "  CPU Screen Off v2.0"
+ui_print "  by Rex Ackermann"
+ui_print "  github.com/rexackermann"
+ui_print "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+ui_print "- Extracting files..."
+unzip -o "$ZIPFILE" 'service.sh'  -d "$MODPATH" >&2
+unzip -o "$ZIPFILE" 'config.sh'   -d "$MODPATH" >&2
+unzip -o "$ZIPFILE" 'module.prop' -d "$MODPATH" >&2
+unzip -o "$ZIPFILE" 'README.md'   -d "$MODPATH" >&2
+
+ui_print "- Setting permissions..."
+set_perm "$MODPATH/service.sh" root root 0755
+set_perm "$MODPATH/config.sh"  root root 0644
+
+ui_print "- Done!"
+ui_print " "
+ui_print "  Config : $MODPATH/config.sh"
+ui_print "  Log    : /data/adb/cpu_screenoff.log"
+ui_print " "
+ui_print "  Edit config.sh to set your core layout"
+ui_print "  then reboot to apply."
+ui_print "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

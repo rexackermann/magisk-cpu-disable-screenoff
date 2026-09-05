@@ -1,0 +1,16 @@
+# Build output
+*.zip
+dist/
+
+# Logs (never commit device logs)
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*~
