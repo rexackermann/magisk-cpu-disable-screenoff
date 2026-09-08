@@ -1,7 +1,7 @@
 id=cpu-screenoff
 name=CPU Screen Off
-version=v2.0
-versionCode=2
+version=v2.9
+versionCode=29
 author=Rex Ackermann
-description=Disables CPU cores on screen off. Zero polling, logcat event-driven. Catches power button, double tap, timeout — any screen off trigger.
-support=https://github.com/rexackermann/magisk-cpu-disable-screenoff
+description=Parks CPU cores 1-7 on screen off to save battery. WebUI for live status, config, and log. Battery discharge stats, charger-aware drain tracking, hot-apply config via WebUI.
+minMagisk=20400
