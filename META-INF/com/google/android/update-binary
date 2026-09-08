@@ -1,0 +1,123 @@
+#!/sbin/sh
+# ═══════════════════════════════════════════════════════════════════
+#  CPU Screen Off — Magisk / KernelSU Installer
+# ═══════════════════════════════════════════════════════════════════
+
+SKIPUNZIP=1
+OUTFD=$2
+ZIPFILE=$3
+
+ui() { echo "ui_print $*" >> /proc/self/fd/$OUTFD; echo "ui_print" >> /proc/self/fd/$OUTFD; }
+die() { ui "  ✗ ERROR: $*"; exit 1; }
+
+ui ""
+ui "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+ui "  ⚡ CPU Screen Off  v2.9"
+ui "  Rex Ackermann · github.com/rexackermann"
+ui "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+ui ""
+
+# ─── Detect root solution ─────────────────────────────────────────
+if [ -n "$KSU" ]; then
+    ui "  Root : KernelSU $KSU_VER"
+    MODDIR="$KSU_MODPATH"
+elif [ -n "$MAGISK_VER_CODE" ]; then
+    ui "  Root : Magisk $MAGISK_VER_CODE"
+    MODDIR="$NVBASE/modules"
+else
+    ui "  Root : Assuming Magisk layout"
+    MODDIR="/data/adb/modules"
+fi
+
+MODID="cpu-screenoff"
+MODPATH="$MODDIR/$MODID"
+ui "  Path : $MODPATH"
+ui ""
+
+# ─── Kill running instance ────────────────────────────────────────
+PIDFILE="/data/adb/cpu_screenoff.pid"
+if [ -f "$PIDFILE" ]; then
+    OLD_PID=$(cat "$PIDFILE" 2>/dev/null)
+    if [ -n "$OLD_PID" ] && kill -0 "$OLD_PID" 2>/dev/null; then
+        ui "  Stopping existing service (pid=$OLD_PID)..."
+        kill "$OLD_PID" 2>/dev/null
+        sleep 1
+    fi
+    rm -f "$PIDFILE"
+fi
+
+# ─── Extract files ────────────────────────────────────────────────
+ui "  Extracting module files..."
+mkdir -p "$MODPATH/webroot"
+
+unzip -o "$ZIPFILE" \
+    'service.sh' \
+    'action.sh' \
+    'module.prop' \
+    'webroot/index.html' \
+    -d "$MODPATH" >&2 || die "Failed to extract core files"
+
+# Extract postboot.sh only if not already customised by user
+if [ ! -f "$MODPATH/postboot.sh" ]; then
+    unzip -o "$ZIPFILE" 'postboot.sh' -d "$MODPATH" >&2
+    ui "  Installed default postboot.sh"
+else
+    ui "  Kept existing postboot.sh (user-customised)"
+fi
+
+# ─── Permissions ─────────────────────────────────────────────────
+chmod 755 "$MODPATH/service.sh" \
+           "$MODPATH/action.sh"  \
+           "$MODPATH/postboot.sh" 2>/dev/null
+chmod 644 "$MODPATH/module.prop" \
+           "$MODPATH/webroot/index.html" 2>/dev/null
+
+# ─── Verify extracted files ───────────────────────────────────────
+for f in service.sh action.sh module.prop webroot/index.html; do
+    [ -f "$MODPATH/$f" ] || die "Missing: $f"
+done
+ui "  All files verified [OK]"
+ui ""
+
+# ─── Create default config if none exists ────────────────────────
+CONF="/data/adb/cpu_screenoff.conf"
+if [ ! -f "$CONF" ]; then
+    ui "  Creating default config at $CONF..."
+    cat > "$CONF" << 'EOF'
+# cpu-screenoff config
+# Edit here or use the WebUI (Magisk/KSU app → Modules → ⚡ CPU Screen Off → WebUI)
+
+CORES_OFF="2 3 4 5 6 7"
+SETTLE_DELAY=1
+BOOT_DELAY=30
+VERIFY=1
+VERBOSE=1
+TOAST=1
+NOTIFY_BAR=1
+EOF
+else
+    ui "  Existing config preserved"
+fi
+
+# ─── CPU hotplug check ───────────────────────────────────────────
+ui "  Checking CPU sysfs nodes..."
+MISSING=""
+for cpu in 2 3 4 5 6 7; do
+    [ -f "/sys/devices/system/cpu/cpu${cpu}/online" ] || MISSING="$MISSING cpu${cpu}"
+done
+if [ -n "$MISSING" ]; then
+    ui "  ⚠ No sysfs node for:$MISSING"
+    ui "    Those cores will be skipped at runtime."
+else
+    ui "  All CPU sysfs nodes present [OK]"
+fi
+
+ui ""
+ui "  ✓ Installation complete!"
+ui ""
+ui "  Reboot to activate."
+ui "  WebUI  → Magisk/KSU app → Modules → WebUI button"
+ui "  Config → /data/adb/cpu_screenoff.conf"
+ui "  Log    → /data/adb/cpu_screenoff.log"
+ui ""
+ui "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
