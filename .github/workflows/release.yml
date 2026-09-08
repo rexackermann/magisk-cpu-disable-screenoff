@@ -1,0 +1,36 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read version from module.prop
+        id: version
+        run: |
+          VERSION=$(grep '^version=' module.prop | cut -d= -f2)
+          NAME=$(grep '^name=' module.prop | cut -d= -f2 | tr ' ' '-')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "filename=${NAME}-${VERSION}.zip" >> $GITHUB_OUTPUT
+
+      - name: Build flashable zip
+        run: |
+          zip -r "${{ steps.version.outputs.filename }}" \
+            META-INF module.prop service.sh action.sh postboot.sh webroot README.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "${{ steps.version.outputs.version }}"
+          body_path: RELEASE_NOTES.md
+          files: "${{ steps.version.outputs.filename }}"
+          fail_on_unmatched_files: true
