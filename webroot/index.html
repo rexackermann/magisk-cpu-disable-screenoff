@@ -82,6 +82,18 @@ input:focus{border-color:var(--accent)}
 .ll{display:block;white-space:pre-wrap;word-break:break-all}
 .ll.off{color:#818cf8;font-weight:600}.ll.on{color:#4ade80;font-weight:600}
 .ll.ok{color:#4ade80}.ll.fail{color:var(--error)}.ll.warn{color:var(--warn)}.ll.lc{color:#2a2a3a}.ll.sep{color:#2a2a2a}
+/* Core governor/freq table */
+.gov-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.gov-half .gov-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:6px}
+.gov-row{display:flex;gap:5px;flex-wrap:wrap}
+.core-tbl{width:100%;border-collapse:collapse;font-size:11px;margin-top:4px}
+.core-tbl th{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);padding:4px 5px;text-align:left;border-bottom:1px solid var(--border)}
+.core-tbl td{padding:4px 5px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+.core-tbl tr.parked td{opacity:.35}
+.core-tbl input[type=text]{width:100%;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:monospace;font-size:11px;padding:2px 0;outline:none}
+.core-tbl input[type=text]:focus{border-color:var(--accent)}
+.core-lbl{font-weight:700;font-size:11px}
+.core-sub{font-size:9px;color:var(--muted)}
 .toast-wrap{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;gap:7px;align-items:center;pointer-events:none}
 .toast{background:#1c1c2e;border:1px solid #2e2e4e;border-radius:20px;padding:8px 20px;font-size:13px;white-space:nowrap;pointer-events:none;animation:tIn .25s ease;box-shadow:0 4px 24px rgba(0,0,0,.6)}
 .toast.ok{border-color:rgba(34,197,94,.4);color:#4ade80}.toast.err{border-color:rgba(239,68,68,.4);color:#f87171}.toast.inf{border-color:rgba(168,85,247,.4);color:#c084fc}
@@ -133,56 +145,66 @@ input:focus{border-color:var(--accent)}
     Configuration
     <span id="unsaved-lbl" style="display:none;color:var(--accent);font-size:10px;font-weight:600">● unsaved</span>
   </div>
-  <div class="cfg-body">
 
+  <div style="padding:8px 14px 2px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted)">Core control</div>
+  <div class="cfg-body">
     <div>
-      <label class="field-lbl" for="c-cores">
-        Cores to park on screen off
-        <span class="hot-badge">hot-apply</span>
-      </label>
+      <label class="field-lbl" for="c-cores">Cores to park on screen off <span class="hot-badge">hot-apply</span></label>
       <input type="text" id="c-cores" placeholder="2 3 4 5 6 7" autocomplete="off">
       <div class="field-hint">Space-separated CPU indices. CPU 0 always stays online.</div>
     </div>
-
     <div class="row2">
       <div>
-        <label class="field-lbl" for="c-settle">
-          Settle delay
-          <span class="hot-badge">hot-apply</span>
-        </label>
+        <label class="field-lbl" for="c-settle">Settle delay <span class="hot-badge">hot-apply</span></label>
         <input type="number" id="c-settle" min="0" max="30" placeholder="5">
-        <div class="field-hint">Seconds after screen-off before parking. Prevents hotplug race.</div>
+        <div class="field-hint">Seconds after screen-off before parking.</div>
       </div>
       <div>
-        <label class="field-lbl" for="c-boot">
-          Boot delay
-          <span class="cold-badge">restart</span>
-        </label>
+        <label class="field-lbl" for="c-boot">Boot delay <span class="cold-badge">restart</span></label>
         <input type="number" id="c-boot" min="0" max="120" placeholder="30">
-        <div class="field-hint">Seconds to wait after boot. Only changes on next service restart.</div>
+        <div class="field-hint">Seconds to wait after boot.</div>
       </div>
     </div>
-
     <div class="tog-row">
       <label class="tog" id="tog-verify">
         <input type="checkbox" id="c-verify">
         <div class="sw"></div>
-        <div>
-          <div class="tog-text">Verify <span class="hot-badge">hot</span></div>
-          <div class="tog-sub">Read sysfs back after each change</div>
-        </div>
+        <div><div class="tog-text">Verify <span class="hot-badge">hot</span></div><div class="tog-sub">Read sysfs back after each change</div></div>
       </label>
       <label class="tog" id="tog-verbose">
         <input type="checkbox" id="c-verbose">
         <div class="sw"></div>
-        <div>
-          <div class="tog-text">Verbose <span class="hot-badge">hot</span></div>
-          <div class="tog-sub">Log every logcat line seen</div>
-        </div>
+        <div><div class="tog-text">Verbose <span class="hot-badge">hot</span></div><div class="tog-sub">Log every logcat line seen</div></div>
       </label>
     </div>
-
   </div>
+
+  <div style="padding:8px 14px 2px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);border-top:1px solid var(--border)">Frequency caps <span style="font-size:8px;font-weight:400;text-transform:none;letter-spacing:0">(screen off)</span></div>
+  <div class="cfg-body" style="gap:10px">
+    <div class="tog-row">
+      <label class="tog" id="tog-freqcap">
+        <input type="checkbox" id="c-freqcap">
+        <div class="sw"></div>
+        <div><div class="tog-text">Enable freq capping <span class="hot-badge">hot-apply</span></div><div class="tog-sub">Cap online cores to lower MHz while screen is off</div></div>
+      </label>
+    </div>
+    <div id="freq-body" style="display:none">
+      <div class="gov-pair">
+        <div class="gov-half">
+          <div class="gov-lbl">Screen OFF governor <span style="font-weight:400;text-transform:none;letter-spacing:0">(global)</span></div>
+          <div class="gov-row" id="gov-off-options"><span style="font-size:11px;color:var(--muted)">Loading…</span></div>
+        </div>
+        <div class="gov-half">
+          <div class="gov-lbl">Screen ON governor <span style="font-weight:400;text-transform:none;letter-spacing:0">(global)</span></div>
+          <div class="gov-row" id="gov-on-options"><span style="font-size:11px;color:var(--muted)">Loading…</span></div>
+        </div>
+      </div>
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:4px">Per-core overrides — empty = use global / restore max</div>
+      <div id="core-table"></div>
+      <div id="freq-avail" style="font-size:10px;color:var(--muted);padding:6px 0 0;line-height:1.6"></div>
+    </div>
+  </div>
+
   <div class="save-row">
     <button class="btn btn-ghost" id="btn-discard" style="display:none">✕ Discard</button>
     <button class="btn btn-primary" id="btn-save">💾  Save &amp; Apply</button>
@@ -209,17 +231,24 @@ input:focus{border-color:var(--accent)}
 
 <script>
 // ── exec helpers ─────────────────────────────────────────────────────
-// KernelSU Next: ksu.exec() returns only the LAST LINE of stdout.
-// All single-value reads are fine. Multi-line uses base64 pipe.
+// ksu.exec() returns only the last line on KernelSU Next.
 const $x = async (cmd) => {
   try { const r=ksu.exec(cmd); return {ok:true,out:typeof r==='string'?r:String(r||'')}; } catch(_){}
   try { const o=await exec(cmd); return {ok:true,out:typeof o==='string'?o:''}; } catch(_){}
   return {ok:false,out:'',err:'no-api'};
 };
 const $xb64 = async (cmd) => {
-  const r=await $x(`(${cmd})|base64|tr -d '\\n'`);
+  const r=await $x(`(${cmd}) 2>/dev/null | base64 | tr -d '\\n'`);
   if(!r.ok||!r.out.trim()) return {ok:false,out:''};
   try{return{ok:true,out:atob(r.out.trim())};}catch(_){return{ok:false,out:''};}
+};
+
+// Write entire file in one exec via base64 — avoids per-line round-trips
+const $writeFile = async (path, lines) => {
+  const content = lines.join('\n') + '\n';
+  const b64 = btoa(unescape(encodeURIComponent(content)));
+  const r = await $x(`printf '%s' '${b64}' | base64 -d > ${path}`);
+  return r.ok;
 };
 
 // ── JSON parse — tolerant of trailing garbage ────────────────────────
@@ -272,12 +301,15 @@ let st={},hasApi=false,autoSc=true,modEnabled=true,lastLogH='',cfgLoaded=false;
 let battEvents=[],battPeriod=86400;
 
 // ── Status ───────────────────────────────────────────────────────────
+let lastSeenTs=''; let lastSeenWall=0;
 async function pollStatus(){
   const r=await $x("tr -d '\\n' < /data/adb/cpu_screenoff.status 2>/dev/null");
   if(!r.ok||!r.out.trim()) return;
   const p=parseStatus(r.out); if(!p) return;
+  const wasLoaded=Object.keys(st).length>0;
+  if(p.last_ts!==lastSeenTs){lastSeenTs=p.last_ts;lastSeenWall=Date.now();}
   st=p; renderStatus();
-  if(!cfgLoaded){populateCfg();cfgLoaded=true;markClean();}
+  if(!wasLoaded) await loadAllConfig();
 }
 
 function renderStatus(){
@@ -291,6 +323,13 @@ function renderStatus(){
   document.getElementById('s-cores').textContent=`${st.active_cores??'?'}/${st.total_cores??'?'}`;
   document.getElementById('s-uptime').textContent=st.uptime||'—';
   document.getElementById('s-pid').textContent=st.pid||'—';
+  // Staleness: status only updates on events — warn if >120s since last change
+  let staleEl=document.getElementById('stale-warn');
+  const stale=lastSeenWall>0&&(Date.now()-lastSeenWall)>120000;
+  if(stale){
+    if(!staleEl){staleEl=document.createElement('span');staleEl.id='stale-warn';staleEl.style.cssText='font-size:0.7em;color:#f59e0b;margin-left:8px';document.getElementById('svc-lbl').after(staleEl);}
+    staleEl.textContent='· no events yet';
+  } else if(staleEl){staleEl.remove();}
   renderCores();
 }
 
@@ -314,16 +353,6 @@ function renderCores(){
   }
 }
 
-function populateCfg(){
-  const set=(id,v)=>{if(v!==undefined)document.getElementById(id).value=v;};
-  set('c-cores',st.cores_off);set('c-settle',st.settle_delay);set('c-boot',st.boot_delay);
-  const chk=(id,v)=>{
-    const el=document.getElementById(id);
-    const tog=document.getElementById('tog-'+id.replace('c-',''));
-    el.checked=v==1;tog.classList.toggle('checked',v==1);
-  };
-  chk('c-verify',st.verify);chk('c-verbose',st.verbose);
-}
 
 // ── Battery stats ────────────────────────────────────────────────────
 async function pollBattery(){
@@ -436,40 +465,11 @@ document.querySelectorAll('.batt-tab').forEach(btn=>{
   });
 });
 
-// ── Save config ──────────────────────────────────────────────────────
-document.getElementById('btn-save').addEventListener('click',async()=>{
-  const btn=document.getElementById('btn-save');
-  btn.disabled=true;btn.textContent='Saving…';
-  const cores=document.getElementById('c-cores').value.trim();
-  const settle=document.getElementById('c-settle').value||'1';
-  const boot=document.getElementById('c-boot').value||'30';
-  const verify=document.getElementById('c-verify').checked?1:0;
-  const verbose=document.getElementById('c-verbose').checked?1:0;
-  const conf=['# cpu-screenoff config',
-    `CORES_OFF="${cores}"`,`SETTLE_DELAY=${settle}`,`BOOT_DELAY=${boot}`,
-    `VERIFY=${verify}`,`VERBOSE=${verbose}`].join('\n');
-  // Write conf line by line — printf '%s\n' treats the whole string as one arg
-  // Instead we echo each line via a subshell to get real newlines
-  const confB64 = btoa(conf+'\n');
-  const r=await $x(`echo ${confB64}|base64 -d > /data/adb/cpu_screenoff.conf`);
-  if(r.ok){
-    st.cores_off=cores;st.settle_delay=parseInt(settle);
-    st.boot_delay=parseInt(boot);st.verify=verify;st.verbose=verbose;
-    if(st.pid) await $x(`kill -HUP ${st.pid} 2>/dev/null`);
-    toast('✓ Saved & applied');markClean();
-  } else { toast('✗ Save failed','err'); }
-  btn.disabled=false;btn.innerHTML='💾 &nbsp;Save &amp; Apply';
-});
-
-document.getElementById('btn-discard').addEventListener('click',()=>{
-  populateCfg();markClean();toast('Changes discarded','inf');
-});
-
 // ── Controls ─────────────────────────────────────────────────────────
 document.getElementById('btn-restart').addEventListener('click',async()=>{
   if(st.pid) await $x(`kill ${st.pid} 2>/dev/null`);
   await $x('nohup sh /data/adb/modules/cpu-screenoff/service.sh >> /data/adb/cpu_screenoff.log 2>&1 &');
-  toast('↺ Restarting…','inf');cfgLoaded=false;setTimeout(pollStatus,2500);
+  toast('↺ Restarting…','inf');setTimeout(()=>{pollStatus();loadAllConfig();},2500);
 });
 
 async function syncModuleBtn(){
@@ -521,20 +521,250 @@ async function pollLog(){
   if(autoSc&&atB) box.scrollTop=box.scrollHeight;
 }
 
+// ── Frequency & governor state ────────────────────────────────────────
+let freqCfg={
+  enable:0,
+  govScreenOff:'', govScreenOn:'',
+  govScreenOffCPU:['','','','','','','',''],
+  govScreenOnCPU: ['','','','','','','',''],
+  caps:           ['','','','','','','',''],
+  freqOnCaps:     ['','','','','','','',''],
+  _lastCoresOff:''
+};
+let availableGovs=[];
+let liveGovs={};
+const freqMarkDirty=markDirty;
+const freqMarkClean=markClean;
+
+async function fetchAvailableGovs(){
+  const gr=await $x('cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors 2>/dev/null');
+  availableGovs=gr.ok&&gr.out.trim()?gr.out.trim().split(/\s+/).filter(Boolean):['schedutil','powersave','performance'];
+  if(!availableGovs.includes('')) availableGovs=['', ...availableGovs];
+  const fr=await $x('cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies 2>/dev/null');
+  if(fr.ok&&fr.out.trim()){
+    const el=document.getElementById('freq-avail');
+    if(el) el.innerHTML='<b style="color:var(--muted)">Available freqs:</b> '+fr.out.trim().split(/\s+/).join('  ');
+  }
+  renderGovRow('gov-off-options', freqCfg.govScreenOff, v=>{freqCfg.govScreenOff=v;markDirty();});
+  renderGovRow('gov-on-options',  freqCfg.govScreenOn,  v=>{freqCfg.govScreenOn=v; markDirty();});
+}
+
+function govBtnStyle(sel){
+  return `style="flex:none;padding:5px 9px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:${sel?'var(--accent)':'var(--muted)'};${sel?'border-color:var(--accent);background:rgba(168,85,247,.12);':''}font-size:10px;font-weight:600;cursor:pointer;text-align:center"`;
+}
+
+function renderGovRow(id, selected, onChange){
+  const row=document.getElementById(id); if(!row) return;
+  row.innerHTML=availableGovs.map(g=>
+    `<div data-gov="${g}" ${govBtnStyle(g===selected)}>${g||'none'}</div>`).join('');
+  row.querySelectorAll('[data-gov]').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const v=b.dataset.gov;
+      row.querySelectorAll('[data-gov]').forEach(x=>{
+        const s=x===b; x.setAttribute('style',govBtnStyle(s).slice(7,-1));
+        x.style.color=s?'var(--accent)':'var(--muted)';
+        if(s){x.style.borderColor='var(--accent)';x.style.background='rgba(168,85,247,.12)';}
+        else{x.style.borderColor='';x.style.background='var(--surface)';}
+      });
+      onChange(v);
+    });
+  });
+}
+
+function renderGovSelectors(){
+  renderGovRow('gov-off-options', freqCfg.govScreenOff, v=>{freqCfg.govScreenOff=v;markDirty();});
+  renderGovRow('gov-on-options',  freqCfg.govScreenOn,  v=>{freqCfg.govScreenOn=v; markDirty();});
+}
+
+function renderCoreTable(){
+  const parked=(st.cores_off||freqCfg._lastCoresOff||'2 3 4 5 6 7').split(' ').filter(Boolean);
+  freqCfg._lastCoresOff=parked.join(' ');
+  let h=`<table class="core-tbl"><tr><th>CPU</th><th>Off Gov</th><th>Off Freq</th><th>On Gov</th><th>On Freq</th><th>Live Gov</th></tr>`;
+  for(let i=0;i<8;i++){
+    const p=i>0&&parked.includes(String(i));
+    h+=`<tr class="${p?'parked':''}" id="cr-${i}">
+      <td><span class="core-lbl">CPU${i}</span><br><span class="core-sub">${p?'parked':'online'}</span></td>
+      <td><input type="text" id="gov-off-${i}" value="${freqCfg.govScreenOffCPU[i]||''}" placeholder="↑global" ${p?'disabled':''}></td>
+      <td><input type="text" id="freq-off-${i}" value="${freqCfg.caps[i]||''}" placeholder="uncap" ${p?'disabled':''}></td>
+      <td><input type="text" id="gov-on-${i}" value="${freqCfg.govScreenOnCPU[i]||''}" placeholder="↑global" ${p?'disabled':''}></td>
+      <td><input type="text" id="freq-on-${i}" value="${freqCfg.freqOnCaps[i]||''}" placeholder="max" ${p?'disabled':''}></td>
+      <td id="fq-gov-${i}" style="font-size:10px;color:var(--muted)">—</td>
+    </tr>`;
+  }
+  document.getElementById('core-table').innerHTML=h+'</table>';
+  for(let i=0;i<8;i++){
+    ['gov-off-','freq-off-','gov-on-','freq-on-'].forEach(pr=>{
+      const el=document.getElementById(pr+i);
+      if(el&&!el.disabled) el.addEventListener('input',markDirty);
+    });
+  }
+  pollFreqState();
+}
+
+async function pollFreqState(){
+  // Single shell command — avoids 8 round-trips on KernelSU Next
+  const r=await $x('for f in /sys/devices/system/cpu/cpu{0,1,2,3,4,5,6,7}/cpufreq/scaling_governor; do cat "$f" 2>/dev/null || echo -; done');
+  if(!r.ok) return;
+  const vals=r.out.trim().split('\n');
+  for(let i=0;i<8;i++){
+    liveGovs[i]=vals[i]&&vals[i].trim()?vals[i].trim():'-';
+    const el=document.getElementById(`fq-gov-${i}`);
+    if(el) el.textContent=liveGovs[i];
+  }
+}
+
+function renderFreqPanel(){
+  const inp=document.getElementById('c-freqcap');
+  inp.checked=freqCfg.enable===1;
+  document.getElementById('tog-freqcap').classList.toggle('checked',inp.checked);
+  document.getElementById('freq-body').style.display=inp.checked?'':'none';
+  renderGovSelectors();
+  if(inp.checked) renderCoreTable();
+}
+
+document.getElementById('tog-freqcap').addEventListener('click',()=>{
+  const inp=document.getElementById('c-freqcap');
+  inp.checked=!inp.checked;
+  document.getElementById('tog-freqcap').classList.toggle('checked',inp.checked);
+  freqCfg.enable=inp.checked?1:0;
+  document.getElementById('freq-body').style.display=inp.checked?'':'none';
+  if(inp.checked) renderCoreTable();
+  markDirty();
+});
+
+// ── Unified config load (always reads from conf file) ─────────────────
+async function loadAllConfig(){
+  const r=await $xb64('cat /data/adb/cpu_screenoff.conf 2>/dev/null');
+  if(!r.ok||!r.out.trim()) return;
+  const lines=r.out.split('\n');
+  const get=k=>{const l=lines.find(x=>!x.trimStart().startsWith('#')&&x.trimStart().startsWith(k+'='));if(!l)return null;const v=l.slice(l.indexOf('=')+1).trim();return v.replace(/^["']|["']$/g,'');};
+  const setV=(id,v)=>{if(v!==null){const el=document.getElementById(id);if(el)el.value=v;}};
+  const setT=(id,v)=>{const el=document.getElementById(id);if(!el)return;el.checked=v==='1';document.getElementById('tog-'+id.replace('c-',''))?.classList.toggle('checked',v==='1');};
+  setV('c-cores', get('CORES_OFF'));
+  setV('c-settle', get('SETTLE_DELAY'));
+  setV('c-boot',   get('BOOT_DELAY'));
+  setT('c-verify',  get('VERIFY')  ||'1');
+  setT('c-verbose', get('VERBOSE') ||'1');
+  freqCfg.enable=get('FREQ_CAP_ENABLE')==='1'?1:0;
+  freqCfg.govScreenOff=get('GOV_SCREEN_OFF')||'';
+  freqCfg.govScreenOn =get('GOV_SCREEN_ON') ||'';
+  for(let i=0;i<8;i++){
+    freqCfg.govScreenOffCPU[i]=get(`GOV_SCREEN_OFF_CPU${i}`)||'';
+    freqCfg.govScreenOnCPU[i] =get(`GOV_SCREEN_ON_CPU${i}`) ||'';
+    freqCfg.caps[i]      =get(`FREQ_CAP_CPU${i}`) ||'';
+    freqCfg.freqOnCaps[i]=get(`FREQ_ON_CPU${i}`)  ||'';
+  }
+  renderFreqPanel();
+  markClean();
+}
+function populateCfg(){}  // replaced by loadAllConfig
+
+// ── Unified save ──────────────────────────────────────────────────────
+document.getElementById('btn-save').addEventListener('click',async()=>{
+  const btn=document.getElementById('btn-save');
+  btn.disabled=true; btn.textContent='Saving…';
+  // Collect per-core inputs
+  for(let i=0;i<8;i++){
+    const gv=(id)=>{const e=document.getElementById(id+i);return e&&!e.disabled?e.value.trim():'';};
+    freqCfg.govScreenOffCPU[i]=gv('gov-off-');
+    freqCfg.caps[i]           =gv('freq-off-');
+    freqCfg.govScreenOnCPU[i] =gv('gov-on-');
+    freqCfg.freqOnCaps[i]     =gv('freq-on-');
+  }
+  const cores  =document.getElementById('c-cores').value.trim();
+  const settle =document.getElementById('c-settle').value||'5';
+  const boot   =document.getElementById('c-boot').value||'30';
+  const verify =document.getElementById('c-verify').checked?1:0;
+  const verbose=document.getElementById('c-verbose').checked?1:0;
+  const lines=[
+    '# cpu-screenoff config — auto-generated by WebUI',
+    `CORES_OFF="${cores}"`,
+    `SETTLE_DELAY=${settle}`,
+    `BOOT_DELAY=${boot}`,
+    `VERIFY=${verify}`,
+    `VERBOSE=${verbose}`,
+    `GOV_SCREEN_OFF="${freqCfg.govScreenOff}"`,
+    `GOV_SCREEN_ON="${freqCfg.govScreenOn}"`,
+    ...Array.from({length:8},(_,i)=>`GOV_SCREEN_OFF_CPU${i}="${freqCfg.govScreenOffCPU[i]}"`),
+    ...Array.from({length:8},(_,i)=>`GOV_SCREEN_ON_CPU${i}="${freqCfg.govScreenOnCPU[i]}"`),
+    `FREQ_CAP_ENABLE=${freqCfg.enable}`,
+    ...Array.from({length:8},(_,i)=>`FREQ_CAP_CPU${i}="${freqCfg.caps[i]}"`),
+    ...Array.from({length:8},(_,i)=>`FREQ_ON_CPU${i}="${freqCfg.freqOnCaps[i]}"`),
+  ];
+  const ok = await $writeFile('/data/adb/cpu_screenoff.conf', lines);
+  if(ok){
+    await loadAllConfig();
+    toast('✓ Saved — applied on next screen event');
+  } else toast('✗ Save failed — check log','err');
+  btn.disabled=false; btn.innerHTML='💾 &nbsp;Save &amp; Apply';
+});
+
+document.getElementById('btn-discard').addEventListener('click',()=>{
+  loadAllConfig(); toast('Changes discarded','inf');
+});
+
+// ── CORES_OFF validation ──────────────────────────────────────────────
+function validateCores(val){
+  const cores=val.trim().split(/\s+/).filter(Boolean);
+  if(cores.includes('0')) return 'CPU 0 cannot be parked — kernel will reject it';
+  if(cores.some(c=>isNaN(c)||c<1||c>7)) return 'Invalid core number (valid: 1–7)';
+  return null;
+}
+
+// ── Visibility-aware interval ─────────────────────────────────────────
+function visInterval(fn, ms){
+  let id=null;
+  const tick=()=>{ if(document.visibilityState!=='hidden') fn(); };
+  const start=()=>{ if(!id) id=setInterval(tick,ms); };
+  const stop =()=>{ clearInterval(id); id=null; };
+  document.addEventListener('visibilitychange',()=>document.visibilityState==='hidden'?stop():start());
+  start();
+}
+
 // ── Init ─────────────────────────────────────────────────────────────
 (async()=>{
+  // Loading spinner
+  const body=document.body;
+  const spin=Object.assign(document.createElement('div'),{id:'init-spin'});
+  spin.style.cssText='position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:9999;font-size:14px;color:var(--muted)';
+  spin.textContent='Connecting…';
+  body.appendChild(spin);
+
   const dl=Date.now()+6000;
   while(Date.now()<dl){
     const p=await $x('echo __ok__');
     if(p.ok&&p.out.includes('__ok__')){hasApi=true;break;}
     await new Promise(r=>setTimeout(r,300));
   }
-  if(!hasApi) document.getElementById('no-api').style.display='block';
-  await Promise.all([pollStatus(),pollLog(),pollBattery(),syncModuleBtn()]);
-  setInterval(pollStatus,3000);
-  setInterval(pollLog,2000);
-  setInterval(pollBattery,60000); // battery data only needs minute-level refresh
-  setInterval(syncModuleBtn,15000);
+  spin.remove();
+  if(!hasApi){ document.getElementById('no-api').style.display='block'; return; }
+
+  await Promise.all([pollStatus(),pollLog(),pollBattery(),syncModuleBtn(),fetchAvailableGovs()]);
+  await loadAllConfig();
+  await pollFreqState();
+
+  // Intervals — paused when page is hidden, no wasted execs in background
+  visInterval(pollStatus, 10000);   // status only changes on events
+  visInterval(pollLog,     5000);
+  visInterval(pollBattery,60000);
+  visInterval(syncModuleBtn,30000);
+  visInterval(pollFreqState,10000);
+
+  // CORES_OFF live validation
+  document.getElementById('c-cores').addEventListener('input',function(){
+    const err=validateCores(this.value);
+    let el=document.getElementById('cores-err');
+    if(err){
+      if(!el){el=Object.assign(document.createElement('div'),{id:'cores-err'});el.style.cssText='color:#f87171;font-size:11px;margin-top:4px';this.after(el);}
+      el.textContent='⚠ '+err;
+    } else if(el) el.remove();
+  });
+
+  // Block save if CORES_OFF invalid
+  document.getElementById('btn-save').addEventListener('click',()=>{
+    const err=validateCores(document.getElementById('c-cores').value);
+    if(err){ toast('⚠ '+err,'err'); return; }
+  },{capture:true});
 })();
 </script>
 </body>
