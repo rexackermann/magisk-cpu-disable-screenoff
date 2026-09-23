@@ -2,18 +2,27 @@ name: Release
 
 on:
   push:
-    tags:
-      - 'v*'
-  workflow_dispatch:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
 
 jobs:
   release:
+    # For PRs: only run when actually merged (not just closed)
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
     permissions:
       contents: write
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Read version from module.prop
         id: version
@@ -21,17 +30,41 @@ jobs:
           VERSION=$(grep '^version=' module.prop | cut -d= -f2)
           NAME=$(grep '^name=' module.prop | cut -d= -f2 | tr ' ' '-')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "filename=${NAME}-${VERSION}.zip" >> $GITHUB_OUTPUT
+          echo "filename=${NAME}-${VERSION}-flashable.zip" >> $GITHUB_OUTPUT
+
+      - name: Check if tag already exists
+        id: tag_check
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if git rev-parse "refs/tags/${VERSION}" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Tag ${VERSION} already exists — skipping release."
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Tag ${VERSION} is new — will create release."
+          fi
+
+      - name: Create and push tag
+        if: steps.tag_check.outputs.exists == 'false'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "${{ steps.version.outputs.version }}"
+          git push origin "${{ steps.version.outputs.version }}"
 
       - name: Build flashable zip
+        if: steps.tag_check.outputs.exists == 'false'
         run: |
           zip -r "${{ steps.version.outputs.filename }}" \
-            META-INF module.prop service.sh action.sh postboot.sh webroot README.md
+            META-INF module.prop service.sh action.sh postboot.sh \
+            config.sh webroot README.md LICENSE
 
       - name: Create GitHub Release
+        if: steps.tag_check.outputs.exists == 'false'
         uses: softprops/action-gh-release@v2
         with:
-          name: "${{ steps.version.outputs.version }}"
+          tag_name: ${{ steps.version.outputs.version }}
+          name: ${{ steps.version.outputs.version }}
           body_path: RELEASE_NOTES.md
-          files: "${{ steps.version.outputs.filename }}"
+          files: ${{ steps.version.outputs.filename }}
           fail_on_unmatched_files: true
