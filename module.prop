@@ -1,7 +1,7 @@
 id=cpu-screenoff
 name=CPU Screen Off
-version=v2.9
-versionCode=29
+version=v3.6
+versionCode=36
 author=Rex Ackermann
-description=Parks CPU cores 1-7 on screen off to save battery. WebUI for live status, config, and log. Battery discharge stats, charger-aware drain tracking, hot-apply config via WebUI.
+description=Parks CPU cores on screen off to save battery (default: cores 2-7, configurable). WebUI for live status, config, and log. Battery discharge stats, charger-aware drain tracking, hot-apply config via WebUI.
 minMagisk=20400
